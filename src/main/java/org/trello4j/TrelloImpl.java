@@ -19,10 +19,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * The Class TrelloImpl.
  */
 public class TrelloImpl implements Trello {
+
+	final Logger log = LoggerFactory.getLogger(TrelloImpl.class);
 
     private static final String METHOD_DELETE   = "DELETE";
     private static final String METHOD_GET      = "GET";
@@ -44,8 +49,9 @@ public class TrelloImpl implements Trello {
 		this.token = token;
 
 		if (this.apiKey == null) {
-			throw new TrelloException(
-					"API key must be set, get one here: https://trello.com/1/appKey/generate");
+			final String msg = "API key must be set, get one here: https://trello.com/1/appKey/generate";
+			log.error( msg );
+			throw new TrelloException( msg );
 		}
 	}
 
@@ -1219,6 +1225,7 @@ public class TrelloImpl implements Trello {
 	 */
 	private InputStream doRequest(String url, String requestMethod, Map<String, String> map) {
 		try {
+			log.debug( "doRequest({}) Method={}, params={}",url,requestMethod,map);
 			HttpsURLConnection conn = (HttpsURLConnection) new URL(url)
 					.openConnection();
 			conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
@@ -1238,6 +1245,7 @@ public class TrelloImpl implements Trello {
             }
 
 			if (conn.getResponseCode() > 399) {
+            	log.warn("response code = {}. Returning null. URL is {}",conn.getResponseCode(),url);
 				return null;
 			} else {
 				return getWrappedInputStream(
@@ -1245,13 +1253,16 @@ public class TrelloImpl implements Trello {
                 );
 			}
 		} catch (IOException e) {
+			log.error("IO exception in doRequest({}). Exception is {}",url,e);
 			throw new TrelloException(e.getMessage());
 		}
 	}
 
 	private void validateObjectId(String id) {
 		if (!TrelloUtil.isObjectIdValid(id)) {
-			throw new TrelloException("Invalid object id: " + id);
+			final String msg = "Invalid object id: ";
+			log.error(msg+" {} ",id);
+			throw new TrelloException(msg + id);
 		}
 	}
 

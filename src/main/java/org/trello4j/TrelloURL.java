@@ -1,10 +1,14 @@
 package org.trello4j;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The Class TrelloURL.
  */
 public class TrelloURL {
+
+	final Logger log = LoggerFactory.getLogger(TrelloURL.class);
 
 	public static final String BOARD_URL = "https://api.trello.com/1/boards/{0}";
 	public static final String BOARD_ACTIONS_URL = "https://api.trello.com/1/boards/{0}/actions";
@@ -104,10 +108,12 @@ public class TrelloURL {
 		return this;
 	}
 
+
 	public String build() {
 		if (apiKey == null || url == null) {
-			throw new NullPointerException(
-					"Cannot build trello URL: API key and URL must be set");
+			final String msg = "Cannot build trello URL: API key and URL must be set";
+			log.error(msg);
+			throw new NullPointerException( msg	);
 		}
 
 		return new StringBuilder()
