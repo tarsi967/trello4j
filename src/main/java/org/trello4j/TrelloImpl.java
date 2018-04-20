@@ -14,13 +14,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * The Class TrelloImpl.
@@ -39,12 +39,18 @@ public class TrelloImpl implements Trello {
 	private String token = null;
 	private TrelloObjectFactoryImpl trelloObjFactory = new TrelloObjectFactoryImpl();
 
+	public enum LoaderModifier { withCustomFields};
+
+	private List<LoaderModifier> modifiers;
 
 	public TrelloImpl(String apiKey) {
 		this(apiKey, null);
 	}
 
 	public TrelloImpl(String apiKey, String token) {
+		this(apiKey,token,null);
+	}
+	public TrelloImpl(String apiKey, String token, LoaderModifier... loaderModifiers) {
 		this.apiKey = apiKey;
 		this.token = token;
 
@@ -53,7 +59,14 @@ public class TrelloImpl implements Trello {
 			log.error( msg );
 			throw new TrelloException( msg );
 		}
+		modifiers = new ArrayList<>();
+		if(loaderModifiers!=null) {
+			Arrays.asList(loaderModifiers).stream().forEach(loaderModifier -> modifiers.add(loaderModifier));
+		}
 	}
+
+	public boolean hasCustomFields() { return modifiers.contains(LoaderModifier.withCustomFields);}
+
 
 	/*
 	 * (non-Javadoc)
@@ -136,6 +149,7 @@ public class TrelloImpl implements Trello {
 		final String url = TrelloURL
 				.create(apiKey, TrelloURL.BOARD_URL, boardId)
 				.token(token)
+				.boardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Board>() {
@@ -176,6 +190,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.BOARD_CARDS_URL, boardId)
 				.token(token)
 				.filter(filter)
+				.cardCustomField(hasCustomFields())
 				.build();
 		return trelloObjFactory.createObject(new TypeToken<List<Card>>() {
 		}, doGet(url));
@@ -357,6 +372,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.MEMBER_BOARDS_URL, usernameOrId)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 		return trelloObjFactory.createObject(new TypeToken<List<Board>>() {
 		}, doGet(url));
@@ -379,6 +395,7 @@ public class TrelloImpl implements Trello {
 						organizationName)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 		return trelloObjFactory.createObject(new TypeToken<List<Board>>() {
 		}, doGet(url));
@@ -416,6 +433,7 @@ public class TrelloImpl implements Trello {
 		final String url = TrelloURL
 				.create(apiKey, TrelloURL.CARD_URL, cardId)
 				.token(token)
+				.cardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Card>() {
@@ -471,6 +489,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.CARD_BOARD_URL, cardId)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Board>() {
@@ -658,6 +677,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.ACTION_BOARD_URL, actionId)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Board>() {
@@ -677,6 +697,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.ACTION_CARD_URL, actionId)
 				.token(token)
 				.filter(filter)
+				.cardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Card>() {
@@ -807,6 +828,7 @@ public class TrelloImpl implements Trello {
 						notificationId)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Board>() {
@@ -831,6 +853,7 @@ public class TrelloImpl implements Trello {
 						notificationId)
 				.token(token)
 				.filter(filter)
+				.cardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Card>() {
@@ -966,6 +989,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.LIST_BOARD_URL, listId)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Board>() {
@@ -985,6 +1009,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.LIST_CARDS_URL, listId)
 				.token(token)
 				.filter(filter)
+				.cardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<List<Card>>() {
@@ -1021,6 +1046,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.MEMBER_CARDS_URL, usernameOrId)
 				.token(token)
 				.filter(filter)
+				.cardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<List<Card>>() {
@@ -1114,6 +1140,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.CHECKLIST_BOARD_URL, checklistId)
 				.token(token)
 				.filter(filter)
+				.boardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<Board>() {
@@ -1153,6 +1180,7 @@ public class TrelloImpl implements Trello {
 				.create(apiKey, TrelloURL.CHECKLIST_CARDS_URL, checklistId)
 				.token(token)
 				.filter(filter)
+				.cardCustomField(hasCustomFields())
 				.build();
 
 		return trelloObjFactory.createObject(new TypeToken<List<Card>>() {

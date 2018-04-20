@@ -3,6 +3,10 @@ package org.trello4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * The Class TrelloURL.
  */
@@ -85,6 +89,7 @@ public class TrelloURL {
 	private String token = null;
 
 	private String[] filters = null;
+	private Map<String,Object> queries = null;
 
 
     public static TrelloURL create(String apiKey, String url,
@@ -103,8 +108,32 @@ public class TrelloURL {
 		return this;
 	}
 
+	public TrelloURL query(String key,Object value) {
+		getQueries().put(key,value);
+		return this;
+	}
+
+	private Map<String,Object> getQueries() {
+    	if(queries==null)
+    		queries = new HashMap<>();
+    	return queries;
+	}
+
 	public TrelloURL filter(String... filters) {
 		this.filters = isArrayEmpty(filters) ? null : filters;
+		return this;
+	}
+
+	public TrelloURL boardCustomField(boolean has) {
+		if(has) {
+			this.query("customFields",Boolean.TRUE);
+		}
+		return this;
+	}
+	public TrelloURL cardCustomField(boolean has) {
+		if(has) {
+			this.query("customFieldItems",Boolean.TRUE);
+		}
 		return this;
 	}
 
@@ -120,7 +149,18 @@ public class TrelloURL {
 				.append(createUrlWithPathParams())
 				.append(createAuthQueryString())
 				.append(createFilterQuery())
+				.append(createQueriesQuery())
 				.toString();
+	}
+
+	private String createQueriesQuery() {
+		String queryStr = "";
+		if (this.queries != null) {
+			StringBuilder sb = new StringBuilder();
+			queries.forEach((s, o) -> sb.append('&').append(s).append(o));
+			queryStr = sb.toString();
+		}
+		return queryStr;
 	}
 
 	private String createFilterQuery() {
@@ -158,5 +198,6 @@ public class TrelloURL {
 	private static boolean isArrayEmpty(String[] arr) {
 		return arr == null || arr.length == 0;
 	}
+
 
 }
