@@ -20,8 +20,17 @@ public class Card extends TrelloObject {
 	private List<Label> labels;
 	private String url;
 	private double pos;
+	private List<CustomFieldItem> customFieldItems;
 
-    public String getName() {
+	public List<CustomFieldItem> getCustomFieldItems() {
+		return customFieldItems;
+	}
+
+	public void setCustomFieldItems(List<CustomFieldItem> customFieldItems) {
+		this.customFieldItems = customFieldItems;
+	}
+
+	public String getName() {
 		return name;
 	}
 

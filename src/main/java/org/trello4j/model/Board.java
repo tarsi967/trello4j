@@ -1,6 +1,8 @@
 package org.trello4j.model;
 
 
+import java.util.List;
+
 public class Board extends TrelloObject {
 
 	public enum PERMISSION_TYPE {
@@ -16,6 +18,9 @@ public class Board extends TrelloObject {
 	private String idOrganization;
 	private String url;
 	private Prefs prefs;
+	private List<CustomField> customFields;
+
+
 
 	
 	public String getName() {
@@ -72,6 +77,14 @@ public class Board extends TrelloObject {
 
 	public void setInvited(boolean invited) {
 		this.invited = invited;
+	}
+
+	public List<CustomField> getCustomFields() {
+		return customFields;
+	}
+
+	public void setCustomFields(List<CustomField> customFields) {
+		this.customFields = customFields;
 	}
 
 	public class Prefs {
